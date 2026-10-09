@@ -1,0 +1,12 @@
+# One-click deploy on Render (free tier). The database is built from the
+# committed sample at build time, so no external download is needed.
+services:
+  - type: web
+    name: urban-mobility-explorer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python -m pipeline.run
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7

@@ -3,85 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NYC Taxi Dashboard</title>
+  <title>When the City Slows Down</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <header>
-    <h1>NYC Taxi Dashboard</h1>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">NYC Yellow Taxi · Urban Mobility Data Explorer</p>
+      <h1>When the city slows down</h1>
+      <p class="story" id="story">Where and at what hours does average taxi speed collapse, and what does that congestion cost riders per mile?</p>
+      <p class="provenance" id="provenance">Loading data…</p>
+    </div>
   </header>
 
-  <main>
-    <div id="summary"></div>
-
-    <div class="section-row">
-      <div class="card" id="top-zones-card">
-        <h2>Top Pickup Zones</h2>
-        <div id="topZones"></div>
-      </div>
-
-      <div class="card" id="borough-card">
-        <h2>Borough Activity</h2>
-        <div id="boroughChart"></div>
+  <form id="filters" class="filters" autocomplete="off">
+    <div class="wrap filter-grid">
+      <label>From <input type="date" name="start_date" /></label>
+      <label>To <input type="date" name="end_date" /></label>
+      <label>Hours
+        <span class="pair">
+          <input type="number" name="hour_min" min="0" max="23" placeholder="0" />
+          <span>–</span>
+          <input type="number" name="hour_max" min="0" max="23" placeholder="23" />
+        </span>
+      </label>
+      <label>Days
+        <select name="days">
+          <option value="">All week</option>
+          <option value="0,1,2,3,4">Weekdays</option>
+          <option value="5,6">Weekend</option>
+        </select>
+      </label>
+      <label>Borough <select name="borough"><option value="">All boroughs</option></select></label>
+      <label>Pickup zone <select name="zone"><option value="">All zones</option></select></label>
+      <label>Distance (mi)
+        <span class="pair">
+          <input type="number" name="min_distance" min="0" step="0.5" placeholder="min" />
+          <span>–</span>
+          <input type="number" name="max_distance" min="0" step="0.5" placeholder="max" />
+        </span>
+      </label>
+      <label>Total fare ($)
+        <span class="pair">
+          <input type="number" name="min_fare" min="0" step="1" placeholder="min" />
+          <span>–</span>
+          <input type="number" name="max_fare" min="0" step="1" placeholder="max" />
+        </span>
+      </label>
+      <label>Payment <select name="payment"><option value="">Any</option></select></label>
+      <label class="check"><input type="checkbox" name="exclude_outliers" value="1" /> Hide outliers</label>
+      <div class="actions">
+        <button type="submit">Apply</button>
+        <button type="reset" class="ghost">Reset</button>
       </div>
     </div>
+  </form>
 
-    <div class="card">
-      <h2>Hourly Trip Demand</h2>
-      <div id="hourlyChart"></div>
+  <main class="wrap">
+    <section aria-labelledby="kpi-h">
+      <h2 id="kpi-h" class="visually-hidden">Headline numbers</h2>
+      <div id="kpis" class="kpis"></div>
+      <p class="callout" id="kpi-insight"></p>
+    </section>
+
+    <section class="card" aria-labelledby="map-h">
+      <div class="card-head">
+        <div>
+          <h2 id="map-h">Where traffic crawls</h2>
+          <p class="sub">Pickup zones coloured by the selected metric. Click a zone for its profile.</p>
+        </div>
+        <div class="seg" role="group" aria-label="Map metric" data-target="map">
+          <button type="button" data-metric="avg_speed" class="on">Avg speed</button>
+          <button type="button" data-metric="fare_per_mile">Fare / mile</button>
+          <button type="button" data-metric="trips">Trips</button>
+        </div>
+      </div>
+      <div class="map-layout">
+        <div id="map" class="map" aria-label="Taxi zone map"></div>
+        <aside id="zone-panel" class="zone-panel">
+          <p class="muted">Select a zone on the map to see when it slows down and where its riders go.</p>
+        </aside>
+      </div>
+      <div id="map-legend" class="legend"></div>
+      <p class="callout" id="map-insight"></p>
+    </section>
+
+    <section class="card" aria-labelledby="heat-h">
+      <div class="card-head">
+        <div>
+          <h2 id="heat-h">The weekly rhythm of congestion</h2>
+          <p class="sub">Hour of day × day of week, by pickup time.</p>
+        </div>
+        <div class="seg" role="group" aria-label="Heatmap metric" data-target="heatmap">
+          <button type="button" data-metric="avg_speed" class="on">Avg speed</button>
+          <button type="button" data-metric="fare_per_mile">Fare / mile</button>
+          <button type="button" data-metric="trips">Trips</button>
+        </div>
+      </div>
+      <div id="heatmap" class="heatmap"></div>
+      <p class="callout" id="heat-insight"></p>
+    </section>
+
+    <div class="two-col">
+      <section class="card" aria-labelledby="dist-h">
+        <div class="card-head">
+          <div>
+            <h2 id="dist-h">How spread out are trips?</h2>
+            <p class="sub">Distribution across all matching trips (not just averages).</p>
+          </div>
+          <div class="seg" role="group" aria-label="Distribution metric" data-target="distribution">
+            <button type="button" data-metric="avg_speed_mph" class="on">Speed</button>
+            <button type="button" data-metric="fare_per_mile">Fare / mi</button>
+            <button type="button" data-metric="trip_distance">Distance</button>
+          </div>
+        </div>
+        <div id="histogram" class="histogram"></div>
+        <p class="callout" id="dist-insight"></p>
+      </section>
+
+      <section class="card" aria-labelledby="rank-h">
+        <div class="card-head">
+          <div>
+            <h2 id="rank-h">Rankings</h2>
+            <p class="sub">Top 10 picked by our own min-heap from every group.</p>
+          </div>
+          <div class="seg" role="group" aria-label="Ranking" data-target="rankings">
+            <button type="button" data-metric="zones:slowest" class="on">Slowest zones</button>
+            <button type="button" data-metric="routes:trips">Busiest routes</button>
+            <button type="button" data-metric="zones:fare_per_mile">Priciest / mi</button>
+          </div>
+        </div>
+        <ol id="rankings" class="rankings"></ol>
+        <p class="sub" id="rank-note"></p>
+      </section>
     </div>
 
-    <div class="card">
-      <h2>Trips</h2>
-      <div class="filters">
-        <label>
-          Borough
-          <select id="boroughFilter">
-            <option value="all">All boroughs</option>
-            <option value="Bronx">Bronx</option>
-            <option value="Brooklyn">Brooklyn</option>
-            <option value="Manhattan">Manhattan</option>
-            <option value="Queens">Queens</option>
-            <option value="Staten Island">Staten Island</option>
-          </select>
-        </label>
-        <label>
-          Sort by
-          <select id="sortFilter">
-            <option value="fare">Fare</option>
-            <option value="distance">Distance</option>
-            <option value="time">Pickup time</option>
-          </select>
-        </label>
-        <label>
-          Min distance
-          <input id="minDistance" type="number" min="0" step="0.5" placeholder="0" />
-        </label>
-        <label>
-          Max distance
-          <input id="maxDistance" type="number" min="0" step="0.5" placeholder="25" />
-        </label>
-        <button id="applyFilters">Apply</button>
+    <section class="card" aria-labelledby="trips-h">
+      <div class="card-head">
+        <div>
+          <h2 id="trips-h">Trip records</h2>
+          <p class="sub" id="trip-count"></p>
+        </div>
       </div>
-
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Pickup</th>
-              <th>Dropoff</th>
-              <th>Distance</th>
-              <th>Fare</th>
-              <th>Duration</th>
+              <th><button class="sort" data-sort="pickup_datetime">Pickup</button></th>
+              <th>From → To</th>
+              <th class="num"><button class="sort" data-sort="trip_distance">Miles</button></th>
+              <th class="num"><button class="sort" data-sort="trip_duration_min">Min</button></th>
+              <th class="num"><button class="sort" data-sort="avg_speed_mph">mph</button></th>
+              <th class="num"><button class="sort" data-sort="fare_per_mile">$/mi</button></th>
+              <th class="num"><button class="sort" data-sort="total_amount">Total</button></th>
             </tr>
           </thead>
-          <tbody id="tripTableBody"></tbody>
+          <tbody id="trip-rows"></tbody>
         </table>
       </div>
-    </div>
+      <div class="pager">
+        <button type="button" id="prev" class="ghost">← Prev</button>
+        <span id="page-info"></span>
+        <button type="button" id="next" class="ghost">Next →</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="dq-h">
+      <div class="card-head">
+        <div>
+          <h2 id="dq-h">Data quality</h2>
+          <p class="sub">Every row the pipeline dropped, flagged or re-coded — nothing is removed silently.</p>
+        </div>
+      </div>
+      <div id="dq-summary" class="dq-summary"></div>
+      <div class="table-wrap">
+        <table class="dq">
+          <thead><tr><th>Stage</th><th>Rule</th><th>Action</th><th class="num">Rows</th><th>Threshold / detail</th></tr></thead>
+          <tbody id="dq-rows"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
+  <dialog id="trip-dialog">
+    <form method="dialog"><button class="close" aria-label="Close">×</button></form>
+    <div id="trip-detail"></div>
+  </dialog>
+
+  <footer class="wrap foot">
+    Data: NYC Taxi &amp; Limousine Commission trip records. Built by the Urban Mobility Data Explorer team.
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

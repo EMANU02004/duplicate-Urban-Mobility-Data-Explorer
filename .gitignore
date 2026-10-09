@@ -1,3 +1,9 @@
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
+# Full month downloads are ~60 MB: fetched by scripts/download_data.py
+data/raw/
+# Rebuilt by `python -m pipeline.run`
+data/*.db
+# data/sample/ and data/output/ ARE committed (small sample + exclusion log)

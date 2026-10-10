@@ -57,6 +57,14 @@ th, td {
 th {
     background-color: #f8f9fa;
 }
+.insight-bar {
+    display: inline-block;
+    height: 10px;
+    min-width: 2px;
+    max-width: 70%;
+    background: var(--accent);
+    vertical-align: middle;
+}
 input, button {
     padding: 10px;
     margin: 5px;

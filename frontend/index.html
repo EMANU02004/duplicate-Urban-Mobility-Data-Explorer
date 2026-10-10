@@ -1,87 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NYC Taxi Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Urban Mobility Data Explorer</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <header class="app-header">
+        <h1>🚕 NYC Urban Mobility Dashboard</h1>
+        <p>Enterprise Fullstack Data Engine & Optimization Platform</p>
+    </header>
 
-  <header>
-    <h1>NYC Taxi Dashboard</h1>
-  </header>
+    <main class="dashboard-container">
+        <!-- Control Panel & Filters -->
+        <section class="control-card">
+            <h3>🎛️ Live Metrics Explorer</h3>
+            <label for="zoneSelector">Filter by Taxi Pickup Zone ID:</label>
+            <input type="number" id="zoneSelector" placeholder="e.g. 132" min="1" max="263">
+            <button id="filterBtn">Apply Telemetry Filter</button>
+        </section>
 
-  <main>
-    <div id="summary"></div>
+        <!-- KPI Metrics Grid -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-title">Total Processed Trips</span>
+                <h2 id="metricTotal">--</h2>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Average Operational Velocity</span>
+                <h2 id="metricSpeed">-- mph</h2>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">Mean Economic Tip Yield</span>
+                <h2 id="metricTip">-- %</h2>
+            </div>
+        </section>
 
-    <div class="section-row">
-      <div class="card" id="top-zones-card">
-        <h2>Top Pickup Zones</h2>
-        <div id="topZones"></div>
-      </div>
-
-      <div class="card" id="borough-card">
-        <h2>Borough Activity</h2>
-        <div id="boroughChart"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Hourly Trip Demand</h2>
-      <div id="hourlyChart"></div>
-    </div>
-
-    <div class="card">
-      <h2>Trips</h2>
-      <div class="filters">
-        <label>
-          Borough
-          <select id="boroughFilter">
-            <option value="all">All boroughs</option>
-            <option value="Bronx">Bronx</option>
-            <option value="Brooklyn">Brooklyn</option>
-            <option value="Manhattan">Manhattan</option>
-            <option value="Queens">Queens</option>
-            <option value="Staten Island">Staten Island</option>
-          </select>
-        </label>
-        <label>
-          Sort by
-          <select id="sortFilter">
-            <option value="fare">Fare</option>
-            <option value="distance">Distance</option>
-            <option value="time">Pickup time</option>
-          </select>
-        </label>
-        <label>
-          Min distance
-          <input id="minDistance" type="number" min="0" step="0.5" placeholder="0" />
-        </label>
-        <label>
-          Max distance
-          <input id="maxDistance" type="number" min="0" step="0.5" placeholder="25" />
-        </label>
-        <button id="applyFilters">Apply</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Pickup</th>
-              <th>Dropoff</th>
-              <th>Distance</th>
-              <th>Fare</th>
-              <th>Duration</th>
-            </tr>
-          </thead>
-          <tbody id="tripTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-
-  <script src="script.js"></script>
+        <!-- Custom Algorithmic Insights Presentation -->
+        <section class="insight-table-card">
+            <h3>🏆 Busiest Hubs Analysis (Calculated via Custom Top-K Heap Algorithm)</h3>
+            <table id="topZonesTable">
+                <thead>
+                    <tr>
+                        <th>Zone Location ID</th>
+                        <th>Total Logged Trips</th>
+                        <th>Mean Base Fare Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="3">Awaiting data pipeline evaluation...</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>

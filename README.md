@@ -1,100 +1,28 @@
-# Urban Mobility Data Explorer
+# 🚕 NYC Urban Mobility Data Explorer & Analytical Dashboard
 
-This project is a self-contained full-stack dashboard for exploring NYC taxi mobility patterns. It combines a small relational schema with a lightweight Flask backend and a dynamic HTML/CSS/JavaScript frontend.
+An enterprise-level fullstack data intelligence platform engineered to process, clean, map, and visualize high-throughput urban transit footprints utilizing raw New York City Taxi & Limousine Commission (TLC) spatial and transaction metrics.
 
-## Project goals
+## 🚀 Quick Start & Launch Instructions
 
-- Process and normalize trip-level mobility data
-- Store the cleaned records in SQLite for fast exploration
-- Expose dashboard-ready API endpoints for summary and trip-level analysis
-- Visualize key mobility signals such as hourly demand, borough demand, and zone hotspots
-
-## Stack
-
-- Backend: Python + Flask
-- Database: SQLite
-- Frontend: HTML, CSS, JavaScript
-- Data pipeline: Python scripts that generate demo data and can optionally load official TLC files if they are placed in the `data/` folder
-
-## Quick start
-
-1. Open a terminal in this folder.
-2. Create and activate a virtual environment if needed.
-3. Install dependencies:
+Ensure you have your raw dataset files (`yellow_tripdata.parquet` and `taxi_zone_lookup.csv`) placed inside a folder named `data/` in the project root.
 
 ```bash
-python -m pip install -r requirements.txt
+# 1. Clone the repository and navigate to the project directory
+cd duplicate-Urban-Mobility-Data-Explorer
+
+# 2. Install optimized low-dependency requirements
+pip install -r requirements.txt
+
+# 3. Boot the system (Initializes DB, runs the ETL engine, and boots Flask)
+python run.py
 ```
+ Once running, navigate directly to **`http://127.0.0.1:5000`** on your web browser to access the live dashboard panel.
 
-4. Generate the database and start the API server:
+## 🛠️ System Architecture Design
+- **Data Engineering Layer:** Streamlined analytical pipeline executing automated outliers isolation, timestamp standardization, transaction health logging, and multi-row database writing.
+- **Relational Storage Matrix:** Normalized database schema outfitted with custom strategic composite foreign key indexing to reduce query lookups down to optimal execution times.
+- **Algorithmic Engine:** A purely custom library-free, zero-dependency **K-Way Min-Heap** structure that ranks transit hubs directly via algorithmic data streams without utilizing database modifiers or memory-intensive collection objects.
+- **Interactive UI Panel:** A lightweight, vanilla JavaScript micro-dashboard that binds asynchronous state changes back to live backend REST routes without rendering delay blocks.
 
-```bash
-python backend/app.py
-```
-
-5. Open the dashboard in a browser at:
-
-```text
-http://localhost:5050/
-```
-## Data source and processing
-
-The project follows the TLC schema for trip records and taxi zone metadata. If the official files are available, place them into the `data/` folder as follows:
-
-- `data/yellow_tripdata.parquet`
-- `data/taxi_zone_lookup.csv`
-- `data/taxi_zones.geojson`
-
-The app is also seeded with a synthetic demo dataset so it can run immediately without any external downloads.
-
-## API overview
-
-- `GET /api/health` — health check
-- `GET /api/overview` — key metrics and summary
-- `GET /api/insights` — hourly and borough trends
-- `GET /api/trips` — filtered trip records
-
-Example:
-
-```bash
-curl "http://localhost:5050/api/overview"
-curl "http://localhost:5050/api/trips?borough=Manhattan&sort=fare&limit=10"
-```
-
-## Project structure
-
-```text
-urban-mobility-data-explorer/
-├── backend/
-│   ├── app.py
-│   └── data_pipeline.py
-├── database/
-│   └── schema.sql
-├── frontend/
-│   ├── app.js
-│   ├── index.html
-│   └── styles.css
-├── data/
-│   └── urban_mobility.db
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
-
-## Custom algorithm requirement
-
-A custom top-zone tracker is implemented in `backend/data_pipeline.py` using an insertion-sort based routine instead of relying on built-in queue or counting libraries. The algorithm keeps the top zone summaries in descending order without external packages.
-
-## Insights from the dashboard
-
-- Manhattan has the highest concentration of trips and pickup demand
-- The strongest trip demand clusters around midday and early evening windows
-- Higher fare runs are usually associated with longer distances and extended travel times
-
-## Video walkthrough
-
-Video walkthrough: add your link here after recording the demo.
-
-## Notes
-
-This project intentionally uses a compact local SQLite implementation to keep the app runnable and portable. For production-scale workloads, the same schema can be migrated to PostgreSQL with the same relational structure.
+## 📹 Video Walkthrough Reference Link
+- **System Tour Link:** [Insert your private YouTube/Loom demonstration link here]
